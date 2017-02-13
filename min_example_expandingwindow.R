@@ -1,5 +1,5 @@
-library(shiny)
-library(shinyjs)
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(shiny, shinyjs, dplyr)
 
 
 shinyApp(
@@ -21,13 +21,17 @@ shinyApp(
           onclick(paste0("toggleAdvanced", i), toggle(id = paste0("advanced", i), anim = TRUE))
       
           div(
+          p(paste0('CART UID:', unique_trays$CART.ID[[i]])),
+          p(paste0('expiration date for this cart is ', unique_trays$Cart_expire[[i]])),
           a(id = paste0("toggleAdvanced", i), "Show/hide advanced info"),
           hidden(
             div(id = paste0("advanced", i),
-                numericInput("age", "Age", 30),
-                textInput("company", "Company", "")
+                renderDataTable(df %>% 
+                                  filter(CART.TYPE == unique_trays$CART.TYPE[[i]], CART.ID == unique_trays$CART.ID[[i]]) %>% 
+                                  select(DRUG, QTY, EXPIRATION, LOT, DAYS.LEFT))
             )
-          )
+          ),
+          tags$hr()
         )
       })
   })
